@@ -39,6 +39,17 @@ public class Fraction {
         return simplify;
     }
 
+    public Fraction addition(Fraction f2) {
+        int a,b,c,d;
+        Fraction add;
+        a = this.getNumerator();
+        b = this.getDenominator();
+        c = f2.getNumerator();
+        d = f2.getDenominator();
+        add = new Fraction(a*d + b*c, b*d);
+        return add;
+    }
+
     private int gcd1(int a, int b) {
         int r;
         while (true) {
