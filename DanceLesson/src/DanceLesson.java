@@ -10,27 +10,26 @@ public class DanceLesson {
         System.out.println("Enter number of male dancers: ");
         int men = scanner.nextInt();
 
-        if (men == 0 && women == 0) {
-            System.out.println("Lesson is canceled.");
-            System.exit(0);
+        try {
+            if (men == 0 && women == 0)
+                throw new Exception("Lesson is canceled.");
+            else if (men == 0)
+                throw new Exception("Lesson is canceled. No men.");
+            else if (women == 0)
+                throw new Exception("Lesson is canceled. No women.");
+
+            if (women >= men)
+                System.out.println("Each men must dance with " +
+                        women / (double) men + " women.");
+            else
+                System.out.println("Each women must dance with " +
+                        men / (double) women + " men.");
         }
 
-        if (men == 0) {
-            System.out.println("Lesson is canceled. No men.");
+        catch(Exception e){
+            System.out.println(e.getMessage());
             System.exit(0);
         }
-
-        if (women == 0) {
-            System.out.println("Lesson is canceled. No women.");
-            System.exit(0);
-        }
-
-        if (women >= men)
-            System.out.println("Each men must dance with " +
-                    women / (double)men + " women.");
-        else
-            System.out.println("Each women must dance with " +
-                    men / (double)women + " men.");
 
         System.out.println("Begin the lesson.");
     }
