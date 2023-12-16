@@ -1,8 +1,10 @@
 import java.util.*;
 
 public class GeometricObject {
-    private String color = "white";
-    private boolean filled = false;
+    //private String color = "white";
+    //private boolean filled = false;
+    protected String color = "white";
+    protected boolean filled = false;
     private Date dateCreated;
 
     public GeometricObject() {
