@@ -5,6 +5,9 @@ public class Test01 {
         System.out.println(c1.getPerimeter());
         c1.printCircle();
         DisplayObject(new Circle(3,"red",true));
+        Rectangle r1 = new Rectangle();
+        System.out.println(r1.toString());
+        DisplayObject(new Rectangle(3,5,"yellow",false));
     }
 
     public static void DisplayObject(GeometricObject object) {
