@@ -45,5 +45,17 @@ public class deneme01 {
                 break;
             }
         }
+
+        System.out.println("");
+
+        int gecici = dizim02[0];
+        for (int i = 0; i < dizim02.length; i++) {
+            if (i < dizim02.length - 2) {
+                dizim02[i] = dizim02[i+1];
+            }
+            dizim02[0] = dizim02[dizim02.length - 1];
+            dizim02[dizim02.length - 1] = gecici;
+            System.out.println(dizim02[i]);
+        }
     }
 }
