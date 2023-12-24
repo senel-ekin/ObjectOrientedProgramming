@@ -20,10 +20,16 @@ public class IskambilKarlari {
             System.out.println(kartlar[i]);
         }
 
-        for (int i = 0; i < 4; i++) {
-            deste[i] = deste[kartlar[i]/13];
-            deger[i] = deger[kartlar[i]%13];
-            System.out.println("Kart: " + deste[i] + " " + deger[i]);
+        //for (int i = 0; i < 4; i++) {
+        //    deste[i] = deste[kartlar[i]/13];
+        //    deger[i] = deger[kartlar[i]%13];
+        //    System.out.println("Kart: " + deste[i] + " " + deger[i]);
+        //}
+
+        for (int i = 0; i < 52; i++) {
+            String des = deste[kartlar[i] / 13];
+            String deg = deger[kartlar[i] % 13];
+            System.out.println("Kart " + i + ": " + des + " " + deg);
         }
     }
 }
