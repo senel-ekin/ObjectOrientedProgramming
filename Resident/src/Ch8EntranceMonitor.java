@@ -1,14 +1,17 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Ch8EntranceMonitor {
     private Dorm manager;
+    private Door door;
+    private InputHandler input;
     private Scanner scanner;
 
     public Ch8EntranceMonitor() {
         manager = new Dorm();
         scanner = new Scanner(System.in);
+        input = new InputHandler();
+        door = new Door();
     }
 
     public static void main(String[] args) {
@@ -20,6 +23,7 @@ public class Ch8EntranceMonitor {
         openFile();
         String roster = manager.getResidentList();
         System.out.println(roster);
+        processInputData();
     }
 
     public void openFile() {
@@ -38,10 +42,39 @@ public class Ch8EntranceMonitor {
                 manager.openFile(filename);
                 return;
             } catch (FileNotFoundException e) {
-                System.out.println("No such file");
+                System.out.println("No such file: " + e.getMessage());
             } catch (IOException e) {
-                System.out.println("Error in reading file");
+                System.out.println("Error in reading file: " + e.getMessage());
+            } finally {
+                scanner.close();
             }
+        }
+    }
+
+    private void processInputData() {
+        String name, room, pwd;
+        while (true) {
+            input.getInput();
+
+            name = input.getName();
+            room = input.getRoom();
+            pwd = input.getPassword();
+
+            validate(name, room, pwd);
+        }
+    }
+
+    private void validate(String name, String room, String password) {
+        Resident res = manager.getResident(name);
+
+        if (res == null) {
+            System.out.println("Invalid Entry");
+        } else if (res.getName().equals(name) &&
+                   res.getRoom().equals(room) &&
+                   res.getPassword().equals(password)) {
+            door.open();
+        } else {
+            System.out.println("Invalid Entry");
         }
     }
 }

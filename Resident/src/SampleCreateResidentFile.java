@@ -1,8 +1,8 @@
-import java.util.Scanner;
-import java.util.stream.StreamSupport;
+import java.util.*;
+import java.io.*;
 
 public class SampleCreateResidentFile {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Resident res;
         Dorm manager = new Dorm();
 
