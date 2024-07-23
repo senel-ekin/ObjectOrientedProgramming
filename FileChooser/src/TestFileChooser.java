@@ -36,5 +36,9 @@ class TestFileChooser {
         } else {
             System.out.println("Save File dialog canceled.");
         }
+
+//        JFileChooser chooser1 = new JFileChooser();
+//        chooser1.setFileFilter(new JavaFilter());
+//        status = chooser1.showOpenDialog(null);
     }
 }
