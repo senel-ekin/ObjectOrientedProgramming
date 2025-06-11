@@ -64,11 +64,35 @@ public class TimePlanner {
         });
 
         startButton.addActionListener(e -> {
+            if (timer != null && timer.isRunning()) {
+                return;
+            }
+
+            if (remainingSeconds > 0 && selectedIndex != -1) {
+                timer = new Timer(1000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e1) {
+                        remainingSeconds--;
+                        timerLabel.setText("Süre: " + formatTime(remainingSeconds));
+                        if (remainingSeconds <= 0) {
+                            timer.stop();
+                            JOptionPane.showMessageDialog(frame, "Zaman doldu: " + activityListModel.get(selectedIndex));
+                            activityListModel.remove(selectedIndex);
+                        }
+                    }
+                });
+                timer.setInitialDelay(0);
+                timer.start();
+                timerLabel.setText("Süre: " + formatTime(remainingSeconds));
+                return;
+            }
+
             selectedIndex = activityList.getSelectedIndex();
             if (selectedIndex == -1) {
                 JOptionPane.showMessageDialog(frame, "Lütfen bir aktivite seçin.");
                 return;
             }
+
             String selected = activityListModel.get(selectedIndex);
             String[] parts = selected.split("-");
             String timePartRaw = parts[1].trim();
@@ -78,22 +102,21 @@ public class TimePlanner {
 
             timerLabel.setText("Süre: " + formatTime(remainingSeconds));
 
-            if (timer != null && timer.isRunning()) {
-                timer.stop();
-            }
-
             timer = new Timer(1000, new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e1) {
                     remainingSeconds--;
                     timerLabel.setText("Süre: " + formatTime(remainingSeconds));
                     if (remainingSeconds <= 0) {
                         timer.stop();
                         JOptionPane.showMessageDialog(frame, "Zaman doldu: " + activityListModel.get(selectedIndex));
+                        activityListModel.remove(selectedIndex);
                     }
                 }
             });
+            timer.setInitialDelay(0);
             timer.start();
+            timerLabel.setText("Süre: " + formatTime(remainingSeconds));
         });
 
         stopButton.addActionListener(e -> {
@@ -106,7 +129,7 @@ public class TimePlanner {
         resetButton.addActionListener(e -> {
             if (originalSeconds > 0) {
                 remainingSeconds = originalSeconds;
-                timeLabel.setText("Süre: " + formatTime(remainingSeconds));
+                timerLabel.setText("Süre: " + formatTime(remainingSeconds));
             }
         });
 
