@@ -1,5 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -167,6 +170,63 @@ public class TimePlanner {
                 activityListModel.remove(index);
                 activityListModel.add(index + 1, selected);
                 activityList.setSelectedIndex(index + 1);
+            }
+        });
+
+        //Aktiviteleri sürek-bırak için
+        activityList.setDragEnabled(true);
+        activityList.setDropMode(DropMode.INSERT);
+        activityList.setTransferHandler(new TransferHandler() {
+            private int fromIndex = -1;
+
+            @Override
+            public int getSourceActions(JComponent c) {
+                return MOVE;
+            }
+
+            @Override
+            protected Transferable createTransferable(JComponent c) {
+                fromIndex = activityList.getSelectedIndex();
+                if (fromIndex < 0) return null;
+                String value = activityList.getSelectedValue();
+                return new StringSelection(value);
+            }
+
+            @Override
+            public boolean canImport(TransferSupport support) {
+                if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    return false;
+                }
+                JList.DropLocation dropLocation = (JList.DropLocation) support.getDropLocation();
+                return dropLocation.getIndex() != -1;
+            }
+
+            @Override
+            public boolean importData(TransferSupport support) {
+                if (!canImport(support)) {
+                    return false;
+                }
+                try {
+                    Transferable t = support.getTransferable();
+                    String data = (String) t.getTransferData(DataFlavor.stringFlavor);
+                    JList.DropLocation dropLocation = (JList.DropLocation) support.getDropLocation();
+                    int toIndex = dropLocation.getIndex();
+
+                    if (fromIndex < 0 || toIndex < 0 || fromIndex == toIndex) {
+                        return false;
+                    }
+
+                    activityListModel.remove(fromIndex);
+
+                    if (toIndex > fromIndex) toIndex--;
+                    activityListModel.add(toIndex, data);
+
+                    activityList.setSelectedIndex(toIndex);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return false;
             }
         });
 
