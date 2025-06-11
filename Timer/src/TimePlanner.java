@@ -14,7 +14,7 @@ public class TimePlanner {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Zaman Planlayıcı");
-        frame.setSize(500, 400);
+        frame.setSize(700, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -28,6 +28,9 @@ public class TimePlanner {
         JButton startButton = new JButton("Başlat");
         JButton stopButton = new JButton("Durdur");
         JButton resetButton = new JButton("Sıfırla");
+        JButton deleteButton = new JButton("Sil");
+        JButton upButton = new JButton("Yukarı Taşı");
+        JButton downButton = new JButton("Aşağı Taşı");
 
         JPanel inputPanel = new JPanel();
         inputPanel.add(activityLabel);
@@ -41,6 +44,9 @@ public class TimePlanner {
         controlPanel.add(stopButton);
         controlPanel.add(resetButton);
         controlPanel.add(timerLabel);
+        controlPanel.add(deleteButton);
+        controlPanel.add(upButton);
+        controlPanel.add(downButton);
 
         JScrollPane scrollPane = new JScrollPane(activityList);
 
@@ -49,13 +55,16 @@ public class TimePlanner {
         frame.add(controlPanel, BorderLayout.SOUTH);
 
         addButton.addActionListener(e -> {
-            String activity = activityField.getText();
-            String timeText = timeField.getText();
+            String raw = activityField.getText().trim();
+            String timeText = timeField.getText().trim();
 
-            if (!activity.isEmpty() && timeText.matches("\\d+")) {
+            if (!raw.isEmpty() && timeText.matches("\\d+")) {
+                String activity = raw.substring(0, 1).toUpperCase() + raw.substring(1).toLowerCase();
+
                 int minutes = Integer.parseInt(timeText);
                 String entry = activity + " - " + minutes + " dakika";
                 activityListModel.addElement(entry);
+
                 activityField.setText("");
                 timeField.setText("");
             } else {
@@ -68,37 +77,15 @@ public class TimePlanner {
                 return;
             }
 
-            if (remainingSeconds > 0 && selectedIndex != -1) {
-                timer = new Timer(1000, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e1) {
-                        remainingSeconds--;
-                        timerLabel.setText("Süre: " + formatTime(remainingSeconds));
-                        if (remainingSeconds <= 0) {
-                            timer.stop();
-                            JOptionPane.showMessageDialog(frame, "Zaman doldu: " + activityListModel.get(selectedIndex));
-                            activityListModel.remove(selectedIndex);
-                        }
-                    }
-                });
-                timer.setInitialDelay(0);
-                timer.start();
-                timerLabel.setText("Süre: " + formatTime(remainingSeconds));
+            if (activityListModel.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Lütfen önce en az bir aktivite ekleyin.");
                 return;
             }
 
-            selectedIndex = activityList.getSelectedIndex();
-            if (selectedIndex == -1) {
-                JOptionPane.showMessageDialog(frame, "Lütfen bir aktivite seçin.");
-                return;
-            }
+            selectedIndex = 0;
+            activityList.setSelectedIndex(selectedIndex);
 
-            String selected = activityListModel.get(selectedIndex);
-            String[] parts = selected.split("-");
-            String timePartRaw = parts[1].trim();
-            String timeDigits = timePartRaw.replaceAll("[^0-9]","");
-            originalSeconds = Integer.parseInt(timeDigits) * 60;
-            remainingSeconds = originalSeconds;
+            setTimerForSelectedActivity();
 
             timerLabel.setText("Süre: " + formatTime(remainingSeconds));
 
@@ -109,14 +96,34 @@ public class TimePlanner {
                     timerLabel.setText("Süre: " + formatTime(remainingSeconds));
                     if (remainingSeconds <= 0) {
                         timer.stop();
-                        JOptionPane.showMessageDialog(frame, "Zaman doldu: " + activityListModel.get(selectedIndex));
-                        activityListModel.remove(selectedIndex);
+
+                        if (selectedIndex < activityListModel.size()) {
+                            String finishedActivity = activityListModel.get(selectedIndex);
+                            JOptionPane.showMessageDialog(frame, "Zaman doldu, " + finishedActivity + " bitti.");
+                            activityListModel.remove(selectedIndex);
+                        }
+
+                        if (!activityListModel.isEmpty()) {
+                            if (selectedIndex >= activityListModel.size()) {
+                                selectedIndex = activityListModel.size() - 1;
+                            }
+                            activityList.setSelectedIndex(selectedIndex);
+
+                            setTimerForSelectedActivity();
+                            timerLabel.setText("Süre: " + formatTime(remainingSeconds));
+                            JOptionPane.showMessageDialog(frame, "Sıradaki başlıyor: " + activityListModel.get(selectedIndex));
+                            timer.start();
+                        } else {
+                            selectedIndex = -1;
+                            timerLabel.setText("Süre: 00:00");
+                            JOptionPane.showMessageDialog(frame, "Tüm aktiviteler tamamlandı!");
+                        }
                     }
                 }
             });
+
             timer.setInitialDelay(0);
             timer.start();
-            timerLabel.setText("Süre: " + formatTime(remainingSeconds));
         });
 
         stopButton.addActionListener(e -> {
@@ -127,13 +134,52 @@ public class TimePlanner {
         });
 
         resetButton.addActionListener(e -> {
-            if (originalSeconds > 0) {
+            int index = activityList.getSelectedIndex();
+            if (index != -1 && originalSeconds > 0) {
                 remainingSeconds = originalSeconds;
                 timerLabel.setText("Süre: " + formatTime(remainingSeconds));
+            } else {
+                timerLabel.setText("Süre: 00:00");
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int index = activityList.getSelectedIndex();
+            if (index != -1) {
+                activityListModel.remove(index);
+            }
+        });
+
+        upButton.addActionListener(e -> {
+            int index = activityList.getSelectedIndex();
+            if (index > 0) {
+                String selected = activityListModel.get(index);
+                activityListModel.remove(index);
+                activityListModel.add(index - 1, selected);
+                activityList.setSelectedIndex(index - 1);
+            }
+        });
+
+        downButton.addActionListener(e -> {
+            int index = activityList.getSelectedIndex();
+            if (index < activityListModel.getSize() - 1 && index != -1) {
+                String selected = activityListModel.get(index);
+                activityListModel.remove(index);
+                activityListModel.add(index + 1, selected);
+                activityList.setSelectedIndex(index + 1);
             }
         });
 
         frame.setVisible(true);
+    }
+
+    private static void setTimerForSelectedActivity() {
+        String selected = activityListModel.get(selectedIndex);
+        String[] parts = selected.split("-");
+        String timePartRaw = parts[1].trim();
+        String timeDigits = timePartRaw.replaceAll("[^0-9]", "");
+        originalSeconds = Integer.parseInt(timeDigits) * 60;
+        remainingSeconds = originalSeconds;
     }
 
     private static String formatTime(int totalSeconds) {
