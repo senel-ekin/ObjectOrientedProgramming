@@ -8,6 +8,7 @@ public class TimePlanner {
     static JList<String> activityList = new JList<>(activityListModel);
     static Timer timer;
     static int remainingSeconds;
+    static int originalSeconds;
     static JLabel timerLabel = new JLabel("Süre: 00:00");
     static int selectedIndex = -1;
 
@@ -26,6 +27,7 @@ public class TimePlanner {
         JButton addButton = new JButton("Ekle");
         JButton startButton = new JButton("Başlat");
         JButton stopButton = new JButton("Durdur");
+        JButton resetButton = new JButton("Sıfırla");
 
         JPanel inputPanel = new JPanel();
         inputPanel.add(activityLabel);
@@ -37,6 +39,7 @@ public class TimePlanner {
         JPanel controlPanel = new JPanel();
         controlPanel.add(startButton);
         controlPanel.add(stopButton);
+        controlPanel.add(resetButton);
         controlPanel.add(timerLabel);
 
         JScrollPane scrollPane = new JScrollPane(activityList);
@@ -68,8 +71,10 @@ public class TimePlanner {
             }
             String selected = activityListModel.get(selectedIndex);
             String[] parts = selected.split("-");
-            String timePart = parts[1].trim().split(" ")[0];
-            remainingSeconds = Integer.parseInt(timePart) * 60;
+            String timePartRaw = parts[1].trim();
+            String timeDigits = timePartRaw.replaceAll("[^0-9]","");
+            originalSeconds = Integer.parseInt(timeDigits) * 60;
+            remainingSeconds = originalSeconds;
 
             timerLabel.setText("Süre: " + formatTime(remainingSeconds));
 
@@ -91,10 +96,17 @@ public class TimePlanner {
             timer.start();
         });
 
-        startButton.addActionListener(e -> {
+        stopButton.addActionListener(e -> {
             if (timer != null && timer.isRunning()) {
                 timer.stop();
-                timerLabel.setText("Süre durdu");
+                timerLabel.setText("Süre durdu: " + formatTime(remainingSeconds));
+            }
+        });
+
+        resetButton.addActionListener(e -> {
+            if (originalSeconds > 0) {
+                remainingSeconds = originalSeconds;
+                timeLabel.setText("Süre: " + formatTime(remainingSeconds));
             }
         });
 
